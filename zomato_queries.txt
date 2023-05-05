@@ -1,0 +1,92 @@
+
+-----------------create table------------------------------
+create table gr.restaurant(
+res_id int  serial primary key;
+res_name varchar;
+);
+
+create table gr.main_menu(
+mainmenu_id int serial primary key,
+menu_name varchar,
+res_id int,
+foreign key (res_id) references gr.restaurant(res_id)
+);
+
+----------------insert--------------------------------
+insert into gr.restarent(res_name) 
+values ('a2b'),('saravanbhavan');
+
+insert into gr.main_menu(menu_name,res_id)
+values('breakfast','1'),('dinner','2");
+
+------------------update-----------------------------
+
+UPDATE gr.master_item
+SET item_name ='mini idly' 
+WHERE menu_item_id = 3;
+
+
+--------------joins-------------------------------
+
+select res_name,menu_name from gr.restaurant as a inner join gr.main_menu as b
+on a.res_id=b.res_id;
+
+select * from gr.restaurant as a inner join gr.main_menu as b
+on a.res_id=b.res_id;
+
+select * from gr.master_item as a right join gr.menu_item as b
+on a.menu_item_id=b.menu_item_id;
+
+select item_name,price from gr.master_item as a right join gr.menu_item as b
+on a.menu_item_id=b.menu_item_id where price>='150';
+
+select res_name,menu_name,name,item_name,price 
+from gr.restaurant as a inner join gr.main_menu as b on a.res_id=b.res_id
+join gr.menu_category as c on b.mainmenu_id=c.mainmenu_id 
+join gr.menu_item as d on c.menu_category_id=d.menu_category_id
+join gr.master_item as e on d.menu_item_id=e.menu_item_id;
+
+select res_name,menu_name,name,item_name,price 
+from gr.restaurant as a right join gr.main_menu as b on a.res_id=b.res_id
+right join gr.menu_category as c on b.mainmenu_id=c.mainmenu_id 
+right join gr.menu_item as d on c.menu_category_id=d.menu_category_id
+right join gr.master_item as e on d.menu_item_id=e.menu_item_id
+where  name ='others'
+order by price desc;
+
+-----------------------group-------------------------------
+
+SELECT menu_item_id,item_name,price 
+FROM gr.master_item
+GROUP BY menu_item_id,item_name;
+
+SELECT res_name
+FROM gr.restaurant
+GROUP BY res_name;
+
+-----------------order------------------------------------
+
+select name,mainmenu_id from gr.menu_category
+where mainmenu_id in(1,3,5)
+order by name
+limit 6;
+
+-----------------others-----------------------------------
+select price,item_name,res_id from gr.master_item where res_id in(1,3,5) order by price asc;
+
+select * from gr.master_item where price between 100 and 200;
+
+select * from gr.master_item where item_name like'chicken%'
+ 
+create schema gr;
+
+DROP schema garage;
+
+DROP TABLE if exists garage.menu_category,garage.menu_item,garage.restaurant cascade;
+
+DROP TABLE if exists garage.main_menu cascade;
+
+drop TABLE garage.master_item;
+
+drop TABLE public.menu_category;
+
