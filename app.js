@@ -401,7 +401,7 @@ app.get("/restaurant1/:id/:cat/:menu", (request, response) => {
 
 
 app.get("/restaurant2", (request, response) => {
-  // TODO:
+  //http://localhost:3000/restaurant2?isres=1&ismenu=1&iscat=1
   ;
   const { isres,ismenu,iscat } = request.query;
   //console.log(ismenu);
