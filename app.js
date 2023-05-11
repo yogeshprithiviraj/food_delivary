@@ -398,6 +398,56 @@ app.get("/restaurant1/:id/:cat/:menu", (request, response) => {
   
 });
 
+
+
+app.get("/restaurant2", (request, response) => {
+  // TODO:
+  ;
+  const { isres,ismenu,iscat } = request.query;
+  //console.log(ismenu);
+  let query = `select * from gr.restaurant`;
+  let querybinding = [];
+  //console.log(id+" "+ismenu)
+  if (isres != null) {
+    query = `select  res_name,menu_name 
+    from gr.restaurant as a 
+    inner join gr.main_menu as b 
+    on a.res_id=b.res_id where b.res_id= $1`;
+    querybinding=[isres];
+    if(ismenu != null){
+      query = `select res_name,menu_name,name 
+      from gr.restaurant as a 
+      inner join gr.main_menu as b on a.res_id=b.res_id 
+      inner join gr.menu_category as c on b.mainmenu_id=c.mainmenu_id 
+      where a.res_id =$1 and b.mainmenu_id = $2`;
+    querybinding=[isres,ismenu]
+    if(iscat != null){
+      query=`select 
+      res_name,menu_name,name,item_name,price 
+      from gr.restaurant as a 
+       join gr.main_menu as b on a.res_id=b.res_id 
+       join gr.menu_category as c on b.mainmenu_id=c.mainmenu_id 
+       join gr.menu_item as d on c.menu_category_id=d.menu_category_id 
+       join gr.master_item as e on d.menu_item_id=e.menu_item_id 
+      where 
+      a.res_id=$1 
+      and b.mainmenu_id=$2 
+      and c.menu_category_id =$3`;
+    querybinding=[isres,ismenu,iscat]
+    }
+    }
+   
+    
+  }
+  pool.query(query,querybinding, (error, results) => {
+    if (error) {
+      throw error
+    }
+    response.status(200).json(results.rows)
+  })
+})
+  
+
 app.listen(process.env.PORT || 3000, () => {
   console.log(`Server listening`)
 })
