@@ -401,27 +401,27 @@ app.get("/restaurant1/:id/:cat/:menu", (request, response) => {
 
 
 app.get("/restaurant2", (request, response) => {
-  //http://localhost:3000/restaurant2?isres=1&ismenu=1&iscat=1
+ // http:localhost:3000/restaurant2?restaurant_all_mainmenu=1&mainmenu_all_category=1&category_all_dishes=1
   ;
-  const { isres,ismenu,iscat } = request.query;
+  const { restaurant_all_mainmenu,mainmenu_all_category,category_all_dishes } = request.query;
   //console.log(ismenu);
   let query = `select * from gr.restaurant`;
   let querybinding = [];
   //console.log(id+" "+ismenu)
-  if (isres != null) {
+  if (restaurant_all_mainmenu != null) {
     query = `select  res_name,menu_name 
     from gr.restaurant as a 
     inner join gr.main_menu as b 
     on a.res_id=b.res_id where b.res_id= $1`;
-    querybinding=[isres];
-    if(ismenu != null){
+    querybinding=[restaurant_all_mainmenu];
+    if(mainmenu_all_category != null){
       query = `select res_name,menu_name,name 
       from gr.restaurant as a 
       inner join gr.main_menu as b on a.res_id=b.res_id 
       inner join gr.menu_category as c on b.mainmenu_id=c.mainmenu_id 
       where a.res_id =$1 and b.mainmenu_id = $2`;
-    querybinding=[isres,ismenu]
-    if(iscat != null){
+    querybinding=[restaurant_all_mainmenu,mainmenu_all_category]
+    if(category_all_dishes != null){
       query=`select 
       res_name,menu_name,name,item_name,price 
       from gr.restaurant as a 
@@ -433,7 +433,7 @@ app.get("/restaurant2", (request, response) => {
       a.res_id=$1 
       and b.mainmenu_id=$2 
       and c.menu_category_id =$3`;
-    querybinding=[isres,ismenu,iscat]
+    querybinding=[restaurant_all_mainmenu,mainmenu_all_category,category_all_dishes]
     }
     }
    
