@@ -4,6 +4,8 @@ const express = require('express');
 const pool = require("./dbconnection")
 const bodyParser = require('body-parser');
 const { nextTick } = require('process');
+var _ = require('lodash');
+const { result } = require('lodash');
 //const { response } = require('express');
 
 const app = express();
@@ -306,7 +308,7 @@ app.get("/restaurant/main_menu/menu_category/master_item/menu_item/:id", (reques
 app.get("/restaurant1/:id", (request, response) => {
   // TODO:
   const { id } = request.params;
-  
+
   const { ismenu } = request.query;
   //console.log(ismenu);
   let query = 'select * from gr.restaurant';
@@ -317,11 +319,11 @@ app.get("/restaurant1/:id", (request, response) => {
     from gr.restaurant as a 
     inner join gr.main_menu as b on a.res_id=b.res_id
     where b.res_id=$1;`;
-    querybinding=[id];
+    querybinding = [id];
     //console.log(id)
   }
-  
-  pool.query(query,querybinding, (error, results) => {
+
+  pool.query(query, querybinding, (error, results) => {
     if (error) {
       throw error
     }
@@ -331,7 +333,7 @@ app.get("/restaurant1/:id", (request, response) => {
 
 app.get("/restaurant1/:id/:cat", (request, response) => {
   // TODO:
-  const { id,cat} = request.params;
+  const { id, cat } = request.params;
   const { iscat } = request.query;
   //console.log(ismenu);
   let query = `select  res_name,menu_name 
@@ -346,22 +348,22 @@ app.get("/restaurant1/:id/:cat", (request, response) => {
     inner join gr.main_menu as b on a.res_id=b.res_id 
     inner join gr.menu_category as c on b.mainmenu_id=c.mainmenu_id 
     where a.res_id =$1 and b.mainmenu_id = $2;`;
-    querybinding=[id,cat];
+    querybinding = [id, cat];
     console.log(id)
   }
-  
-  pool.query(query,querybinding, (error, results) => {
+
+  pool.query(query, querybinding, (error, results) => {
     if (error) {
       throw error
     }
     response.status(200).json(results.rows)
   })
-  
+
 });
 ///==============================
 app.get("/restaurant1/:id/:cat/:menu", (request, response) => {
   // TODO:
-  const { id,cat,menu } = request.params;
+  const { id, cat, menu } = request.params;
   const { ismenu } = request.query;
   //console.log(ismenu);
   let query = `select 
@@ -371,7 +373,7 @@ app.get("/restaurant1/:id/:cat/:menu", (request, response) => {
   inner join gr.menu_category as c on b.mainmenu_id=c.mainmenu_id 
   where a.res_id =$1 
   and b.mainmenu_id = $2;`;
-  let querybinding = [id,cat];
+  let querybinding = [id, cat];
   //console.log(id+" "+ismenu)
   if (ismenu === 'true') {
     query = `select 
@@ -385,44 +387,44 @@ app.get("/restaurant1/:id/:cat/:menu", (request, response) => {
     a.res_id=$1 
     and b.mainmenu_id=$2 
     and c.menu_category_id =$3;`;
-    querybinding=[id,cat,menu];
+    querybinding = [id, cat, menu];
     console.log(id)
   }
-  
-  pool.query(query,querybinding, (error, results) => {
+
+  pool.query(query, querybinding, (error, results) => {
     if (error) {
       throw error
     }
     response.status(200).json(results.rows)
   })
-  
+
 });
 
 
 
 app.get("/restaurant2", (request, response) => {
- // http:localhost:3000/restaurant2?restaurant_all_mainmenu=1&mainmenu_all_category=1&category_all_dishes=1
+  // http:localhost:3000/restaurant2?restaurant_all_mainmenu=1&mainmenu_all_category=1&category_all_dishes=1
   ;
-  const { restaurant_all_mainmenu,mainmenu_all_category,category_all_dishes } = request.query;
+  const { restaurant_all_mainmenu, mainmenu_all_category, category_all_dishes } = request.query;
   //console.log(ismenu);
   let query = `select * from gr.restaurant`;
   let querybinding = [];
   //console.log(id+" "+ismenu)
   if (restaurant_all_mainmenu != null) {
-    query = `select  res_name,menu_name 
+    query = `select a.res_id,res_name,menu_name 
     from gr.restaurant as a 
     inner join gr.main_menu as b 
     on a.res_id=b.res_id where b.res_id= $1`;
-    querybinding=[restaurant_all_mainmenu];
-    if(mainmenu_all_category != null){
+    querybinding = [restaurant_all_mainmenu];
+    if (mainmenu_all_category != null) {
       query = `select res_name,menu_name,name 
       from gr.restaurant as a 
       inner join gr.main_menu as b on a.res_id=b.res_id 
       inner join gr.menu_category as c on b.mainmenu_id=c.mainmenu_id 
       where a.res_id =$1 and b.mainmenu_id = $2`;
-    querybinding=[restaurant_all_mainmenu,mainmenu_all_category]
-    if(category_all_dishes != null){
-      query=`select 
+      querybinding = [restaurant_all_mainmenu, mainmenu_all_category]
+      if (category_all_dishes != null) {
+        query = `select 
       res_name,menu_name,name,item_name,price 
       from gr.restaurant as a 
        join gr.main_menu as b on a.res_id=b.res_id 
@@ -433,20 +435,186 @@ app.get("/restaurant2", (request, response) => {
       a.res_id=$1 
       and b.mainmenu_id=$2 
       and c.menu_category_id =$3`;
-    querybinding=[restaurant_all_mainmenu,mainmenu_all_category,category_all_dishes]
+        querybinding = [restaurant_all_mainmenu, mainmenu_all_category, category_all_dishes]
+      }
     }
-    }
-   
-    
+
+
   }
-  pool.query(query,querybinding, (error, results) => {
+  pool.query(query, querybinding, (error, results) => {
     if (error) {
       throw error
     }
     response.status(200).json(results.rows)
   })
 })
-  
+
+
+app.get("/restaurant44/:id", (request,response) => {
+  // TODO:
+  const { id } = request.params;
+
+  //console.log(ismenu);
+  //let query = 'select * from gr.restaurant';
+
+  pool.query(`select *
+    from gr.restaurant as a inner join gr.main_menu as b on a.res_id=b.res_id
+    inner join gr.menu_category as c on c.mainmenu_id=b.mainmenu_id
+     inner join gr.menu_item as d on c.menu_category_id=d.menu_category_id
+     inner join gr.master_item as e on d.menu_item_id=e.menu_item_id where a.res_id=$1
+    `,[id], (error, results) => {
+
+    if (error) {
+      throw error
+    }else{
+    response.status(200).json(results.rows)
+    }
+    let menu=[];
+    let req_id=("$1",[id])
+    console.log(req_id)
+    if(results.rows.res_id === req_id)
+      {
+        menu.push(ele.menu_name)
+      }
+      console.log(menu)
+    // console.log(results.rows)
+    // let menu = [];
+    // let menu_items = [];
+    // let obj = {};
+    // results.rows.map((ele)=>{
+    //   if(ele.menu_name === "breakfast"){
+    //     menu_items.push(ele.name);
+    //     obj[ele.menu_name] = menu_items
+    //   }
+    //   menu.push(obj);
+    //   menu = _.uniqBy(menu,"breakfast");
+      
+    // })
+    // console.log("menu",menu)
+  })
+});
+
+//----------------------------------------
+app.get("/restaurant77/:id", (request,response) => {
+  // TODO:
+  const { id } = request.params;
+
+  //console.log(ismenu);
+  //let query = 'select * from gr.restaurant';
+
+ const var1 = pool.query(`select *
+    from gr.restaurant as a inner join gr.main_menu as b on a.res_id=b.res_id
+    inner join gr.menu_category as c on c.mainmenu_id=b.mainmenu_id
+     inner join gr.menu_item as d on c.menu_category_id=d.menu_category_id
+     inner join gr.master_item as e on d.menu_item_id=e.menu_item_id where a.res_id=$1
+    `,[id], (error, results) => {
+
+    if (error) {
+      throw error
+    }else{
+     response.status(200).json(results.rows)
+    }
+    
+  })
+  console.log(var1)
+});
+
+
+//-----------------------
+app.get("/restaurant344/", (request, response) => {
+  // TODO:
+  //const { res_id } = request.params;
+ // console.log(res_id);
+
+  pool.query(`select row_to_json(r1.*)
+  from(
+  select t1.res_id,t1.res_name
+  ,array(
+  select row_to_json(r2.*)
+  from(
+  select t2.mainmenu_id,t2.menu_name,array(select row_to_json(r3.*) from 
+  (
+  select t3.menu_category_id,t3.name,array(
+  select row_to_json(r4.*)from 
+  (
+  select t4.item_id,t4.menu_category_id, array(
+  select row_to_json(r5.*,true) from (
+  select * from gr.master_item  t5 
+  where t5.menu_item_id=t4.menu_item_id
+  order by t5.menu_item_id)r5
+  )menu_detials
+  from gr.menu_item t4
+  where t4.menu_category_id=t3.menu_category_id
+  order by t4.item_id)r4
+  )
+  from gr.menu_category t3
+  where t3.mainmenu_id=t2.mainmenu_id
+  order by t3.menu_category_id)r3
+  )menu_catogory
+  from gr.main_menu t2
+  where t2.res_id=t1.res_id
+  order by t2.mainmenu_id)r2) main_menu
+  from gr.restaurant t1) r1`, (error, results) => {
+    if (error) {
+      throw error
+    }
+    response.status(200).json(results.rows)//
+  })
+
+});
+
+
+//-------------------particular restarent-------------------
+app.get("/restaurant344/:res_id", (request, response) => {
+  // TODO:
+  const { res_id } = request.params;
+ // console.log(res_id);
+
+  pool.query(`select row_to_json(r1.*)
+  from(select t1.res_name,array
+          (select row_to_json(r2.*)
+          from(select t2.menu_name, array
+              (select row_to_json(r3.*) 
+              from(select t3.name,array
+                  (select row_to_json(r4.*)
+                  from(select array
+                      (select row_to_json(r5.*, true) 
+                      from(
+                          select t5.menu_item_id as Item_no,t5.item_name,t5.price from gr.master_item  t5 
+                          where t5.menu_item_id = t4.menu_item_id
+                          order by t5.menu_item_id
+                          )r5
+                      )menu_details
+                      from gr.menu_item t4
+                      where t4.menu_category_id = t3.menu_category_id
+                      order by t4.item_id
+                      )r4
+                  )
+                  from gr.menu_category t3
+                  where t3.mainmenu_id = t2.mainmenu_id
+                  order by t3.menu_category_id
+                  )r3
+              )menu_catogory
+              from gr.main_menu t2
+              where t2.res_id = t1.res_id
+              order by t2.mainmenu_id
+              )r2
+          ) main_menu
+          from gr.restaurant t1
+           where t1.res_id = $1
+      ) r1
+  `,[res_id], (error, results) => {
+    if (error) {
+      throw error
+    }
+    response.status(200).json(results.rows)//
+  })
+
+});
+
+
+
+
 
 app.listen(process.env.PORT || 3000, () => {
   console.log(`Server listening`)

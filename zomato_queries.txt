@@ -90,3 +90,19 @@ drop TABLE garage.master_item;
 
 drop TABLE public.menu_category;
 
+
+---------------------------------
+select row_to_json(r1.*)
+from(
+select t1.res_id,t1.res_name,array(select row_to_json(r2.*)from(
+ select t2.mainmenu_id,
+ t2.menu_name,array(select row_to_json(r3.*,true) from 
+(select t3.menu_category_id,t3.name 
+from gr.menu_category t3
+where t3.mainmenu_id=t2.mainmenu_id
+order by t3.menu_category_id)r3
+)t3_date
+from gr.main_menu t2
+where t2.res_id=t1.res_id
+order by t2.mainmenu_id)r2) t2_data
+from gr.restaurant t1)as r1
